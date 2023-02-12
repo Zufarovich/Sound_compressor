@@ -6,6 +6,7 @@
 #define MAX_CHANNELS 6 
 #define ERROR_OPEN_INPUT -1
 #define ERROR_OPEN_OUTPUT -2
+#define EXTRA_CHANNELS -3
 
 SNDFILE* SOUND_FILE;
 SNDFILE* OUTPUT_FILE;
@@ -22,6 +23,12 @@ int main(){
         printf("%s\n", sf_strerror(SOUND_FILE));
         printf("Unable to open the input file\n");
         return ERROR_OPEN_INPUT;
+    }
+
+    if (SFINFO_INPUT.channels > MAX_CHANNELS)
+    {
+        printf("Not able to process more than %d channels\n", MAX_CHANNELS);
+        return EXTRA_CHANNELS;
     }
 
     fill_info(&SFINFO_INPUT, &SFINFO_OUTPUT);
@@ -59,7 +66,7 @@ void fill_info(SF_INFO* input, SF_INFO* output)
 
 void process_data (double *data, int count, int channels)
 {    
-    double channel_gain [MAX_CHANNELS] = { 0.5, 0.8, 0.1, 0.4, 0.4, 0.9 } ;
+    double channel_gain [MAX_CHANNELS] = { 1, 1, 1, 1, 1, 1 } ;
     int k, chan ;
 
     for (chan = 0 ; chan < channels ; chan ++)

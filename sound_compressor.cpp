@@ -3,7 +3,7 @@
 #include <cassert>
 #include <fftw3.h>
 
-#define BUFFER_LEN 1024
+#define BUFFER_LEN 512
 #define MAX_CHANNELS 6 
 #define ERROR_OPEN_INPUT -1
 #define ERROR_OPEN_OUTPUT -2
@@ -55,7 +55,7 @@ int main(){
         fftw_execute(p);
 
         for (int i = 0; i < readcount; i++)
-            printf("%lf     %lf\n", *out[i*2], *out[1 + i*2]);
+            printf("%lf %lf\n", *out[i*2], *out[1 + i*2]);
     } 
     
     fftw_destroy_plan(p);

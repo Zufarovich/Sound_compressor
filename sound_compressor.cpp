@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <sndfile.h>
 #include <cassert>
+#include <fftw3.h>
 
 #define BUFFER_LEN 1024
 #define MAX_CHANNELS 6 
@@ -43,12 +44,23 @@ int main(){
     int readcount = 0;
     double data [BUFFER_LEN];
 
+    fftw_complex *out; 
+    out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * BUFFER_LEN/2 + 1);
+    fftw_plan p = fftw_plan_dft_r2c_1d(BUFFER_LEN, data, out, FFTW_ESTIMATE);
+
     while ((readcount = sf_read_double (SOUND_FILE, data, BUFFER_LEN)))
     {  
         process_data (data, readcount, SFINFO_INPUT.channels) ;
         sf_write_double (OUTPUT_FILE, data, readcount) ;
-    }
+        fftw_execute(p);
+
+        for (int i = 0; i < readcount; i++)
+            printf("%lf     %lf\n", *out[i*2], *out[1 + i*2]);
+    } 
     
+    fftw_destroy_plan(p);
+    fftw_free (out); 
+
     sf_close(SOUND_FILE);
     sf_close(OUTPUT_FILE);
 

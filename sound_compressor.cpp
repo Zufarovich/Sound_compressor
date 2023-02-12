@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <sndfile.h>
+#include <cassert>
 
 #define BUFFER_LEN 1024
 #define MAX_CHANNELS 6 
 #define ERROR_OPEN_INPUT -1
 #define ERROR_OPEN_OUTPUT -2
-#define PATH "sample-15s.wav"
 
 SNDFILE* SOUND_FILE;
 SNDFILE* OUTPUT_FILE;
@@ -13,15 +13,18 @@ SF_INFO SFINFO_INPUT;
 SF_INFO SFINFO_OUTPUT;
 
 void process_data (double *data, int count, int channels);
+void fill_info(SF_INFO* input, SF_INFO* output);
 
 int main(){
 
-    if (!(SOUND_FILE = sf_open(PATH, SFM_READ, &SFINFO_INPUT)))
+    if (!(SOUND_FILE = sf_open("sample-15s.wav", SFM_READ, &SFINFO_INPUT)))
     {
         printf("%s\n", sf_strerror(SOUND_FILE));
         printf("Unable to open the input file\n");
         return ERROR_OPEN_INPUT;
     }
+
+    fill_info(&SFINFO_INPUT, &SFINFO_OUTPUT);
 
     if (!(OUTPUT_FILE = sf_open("output.wav", SFM_WRITE, &SFINFO_OUTPUT)))
     {
@@ -43,6 +46,15 @@ int main(){
     sf_close(OUTPUT_FILE);
 
     return 0;
+}
+
+void fill_info(SF_INFO* input, SF_INFO* output)
+{   
+        assert(input && output);
+
+        output->samplerate = input->samplerate;
+        output->channels = input->channels;
+        output->format = input->format;
 }
 
 void process_data (double *data, int count, int channels)
